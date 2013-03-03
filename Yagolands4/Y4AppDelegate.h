@@ -4,16 +4,22 @@
 
 @property (strong, nonatomic) UIWindow * window;
 
-/* Centro del Villaggio */
+/* Variabili di gioco. */
+@property (nonatomic) BOOL giocoFinito;
+@property (nonatomic) BOOL edificioInCostruzione;
+@property (nonatomic) NSInteger idEdificioCorrente;
+
+/* Centro del Villaggio. */
 @property (nonatomic) BOOL booCentroDelVillaggio;
 @property (nonatomic) NSDate * endJobCentroDelVillaggio;
 @property (nonatomic) NSInteger idCentroDelVillaggio;
 
-/* Caserma */
+/* Caserma. */
 @property (nonatomic) BOOL booCaserma;
 @property (nonatomic) NSInteger idCaserma;
 @property (nonatomic) NSDate * endJobCaserma;
 
+/* Metodi. */
 - (float)timeLeftToBuildCentroDelVillaggio;
 - (float)timeLeftToBuildCaserma;
 

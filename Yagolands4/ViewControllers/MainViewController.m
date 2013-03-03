@@ -29,9 +29,27 @@
         NSInteger tag = self.delegate.idCentroDelVillaggio;
         [(Y4ImageView *)[self.view viewWithTag:tag] setImageOfCentroDelVillaggio];
     }
+    
     if(self.delegate.idCaserma > 0) {
         NSInteger tag = self.delegate.idCaserma;
         [(Y4ImageView *)[self.view viewWithTag:tag] setImageOfCaserma];
+    }
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    if(self.delegate.edificioInCostruzione == YES) {
+        UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"MAPPA NON VISIBILE"
+                                                         message:@"Non puoi vedere la mappa mentre viene costruito un edificio."
+                                                        delegate:self
+                                               cancelButtonTitle:@"Cancel"
+                                               otherButtonTitles:@"OK", nil];
+        [alert show];
+        CellViewController * cell = nil;
+        cell = [[CellViewController alloc] init];
+        [cell setIdCell:self.delegate.idEdificioCorrente];
+        [self.navigationController pushViewController:cell animated:TRUE];
+        
     }
 }
 
@@ -48,6 +66,7 @@
     Y4Coordinata * coordinata = [[Y4Coordinata alloc] init];
     [self disegnaLeMieTerreCon:coordinata];
     [self disegnaLeTerreNemicheCon:coordinata];
+    
 }
 
 - (void)disegnaLeMieTerreCon: (Y4Coordinata *)centro
@@ -108,17 +127,26 @@
 
 - (void)toggleImage: (id)sender
 {
+    
     /* Recupero la view da caricare */
     Y4ImageView * view = (Y4ImageView *)((UITapGestureRecognizer *)sender).view;
     
-    /* Inversione dell'immagine. */
-    [view toggleImage];
-    
-    /* Carico il ViewController della cella. */
-    CellViewController * cell = nil;
-    cell = [[CellViewController alloc] init];
-    [cell setIdCell:view.tag];
-    [self.navigationController pushViewController:cell animated:TRUE];
+    if(view.tag != self.delegate.idCentroDelVillaggio &&
+       view.tag != self.delegate.idCaserma) {
+        [view toggleImage];
+        /* Carico il ViewController della cella. */
+        CellViewController * cell = nil;
+        cell = [[CellViewController alloc] init];
+        [cell setIdCell:view.tag];
+        [self.navigationController pushViewController:cell animated:TRUE];
+    } else {
+        UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"ATTENZIONE!!"
+                                                         message:@"Cella già occupata"
+                                                        delegate:self
+                                               cancelButtonTitle:@"Cancel"
+                                               otherButtonTitles:@"OK", nil];
+        [alert show];
+    }
 }
 
 - (void)didReceiveMemoryWarning
