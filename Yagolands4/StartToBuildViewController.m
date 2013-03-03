@@ -16,9 +16,11 @@
         
         if(self.delegate.booCentroDelVillaggio == 0) {
             [self startToBuildCentroDelVillaggio];
+            [self.delegate setEdificioInCostruzione:YES];
         } else {
             if(self.delegate.booCaserma == 0) {
                 [self startToBuildCaserma];
+                [self.delegate setEdificioInCostruzione:YES];
             }
         }
     }
@@ -27,7 +29,7 @@
 
 - (void)startToBuildCentroDelVillaggio
 {
-    [self.delegate setEndJobCentroDelVillaggio:[NSDate dateWithTimeIntervalSinceNow:10]];
+    [self.delegate setEndJobCentroDelVillaggio:[NSDate dateWithTimeIntervalSinceNow:4]];
     [self.delegate setBooCentroDelVillaggio:true];
 }
 

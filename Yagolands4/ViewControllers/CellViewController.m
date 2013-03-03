@@ -1,6 +1,10 @@
 #import "CellViewController.h"
 #import "StartToBuildViewController.h"
 #import "Y4AppDelegate.h"
+#import "Y4LandaDesolata.h"
+#import "Y4CentroDelVillaggio.h"
+#import "Y4Caserma.h"
+#import "Y4EndGameViewController.h"
 
 @interface CellViewController ()
 
@@ -19,24 +23,38 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    [self mostraTestiDescrittivi];
-    [self mostroAzioniDisponibili];
     
-    [self setTitle:@"Landa desolata"];
-    [((UITextView *)[self.view viewWithTag:102]) setText:@"Luogo sconosciuto."];
-    [((UITextView *)[self.view viewWithTag:103]) setText:@"Descrizione sconosciuta."];
+    if([self.delegate giocoFinito]==YES) {
+        
+            //Y4EndGameViewController * controller = [[Y4EndGameViewController alloc] init];
+            //self.delegate.window.rootViewController = controller;
+        
+    } else {
     
-    if(self.delegate.idCentroDelVillaggio && (self.delegate.idCentroDelVillaggio) == self.idCell) {
-        [self setTitle:@"Centro del Villaggio"];
-        [((UITextView *)[self.view viewWithTag:102]) setText:@"Centro Del Villaggio"];
-        [((UITextView *)[self.view viewWithTag:103]) setText:@"Questa ora è casa tua."];
+        [self mostraTestiDescrittivi];
+        [self mostroAzioniDisponibili];
+        
+        Y4LandaDesolata * landaDesolata = [[Y4LandaDesolata alloc] init];
+        [self setTitle:[landaDesolata getName]];
+        [((UITextView *)[self.view viewWithTag:102]) setText:[landaDesolata getLocation]];
+        [((UITextView *)[self.view viewWithTag:103]) setText:[landaDesolata getDescription]];
+        
+        if(self.delegate.idCentroDelVillaggio && (self.delegate.idCentroDelVillaggio) == self.idCell) {
+            Y4CentroDelVillaggio * centro = [[Y4CentroDelVillaggio alloc] init];
+            [self setTitle:[centro getName]];
+            [((UITextView *)[self.view viewWithTag:102]) setText:[centro getLocation]];
+            [((UITextView *)[self.view viewWithTag:103]) setText:[centro getDescription]];
+        }
+        
+        if(self.delegate.idCaserma && (self.delegate.idCaserma) == self.idCell) {
+            Y4Caserma * caserma = [[Y4Caserma alloc] init];
+            [self setTitle:[caserma getName]];
+            [((UITextView *)[self.view viewWithTag:102]) setText:[caserma getLocation]];
+            [((UITextView *)[self.view viewWithTag:103]) setText:[caserma getDescription]];
+        }
+        
     }
     
-    if(self.delegate.idCaserma && (self.delegate.idCaserma) == self.idCell) {
-        [self setTitle:@"Caserma"];
-        [((UITextView *)[self.view viewWithTag:102]) setText:@"Caserma"];
-        [((UITextView *)[self.view viewWithTag:103]) setText:@"Addestra le tue truppe."];
-    }
 }
 
 - (void)viewDidLoad
@@ -121,9 +139,17 @@
 - (void)threadCostruisciCaserma:(NSTimer *)theTimer {
     if(self.delegate.idCaserma != 0 && [self isCasermaCostruita]) {
         NSLog(@"Ho terminato di costruire la Caserma.");
+        [self.delegate setEdificioInCostruzione:NO];
+        [self.delegate setGiocoFinito:YES];
+        [self.delegate setIdEdificioCorrente:self.delegate.idCaserma];
         [theTimer invalidate];
         theTimer = nil;
+        
+        Y4EndGameViewController * controller = [[Y4EndGameViewController alloc] init];
+        self.delegate.window.rootViewController = controller;
+        
     } else {
+        [self.delegate setEdificioInCostruzione:YES];
         NSLog(@"Caserma costruita in %d.", (int)self.delegate.timeLeftToBuildCaserma);
         UILabel * label = (UILabel *)[self.view viewWithTag:101];
         [label setText:[NSString stringWithFormat:@"Tempo residuo %d", (int)self.delegate.timeLeftToBuildCaserma]];
@@ -133,9 +159,12 @@
 - (void)threadCostruisciCentroDelVillaggio:(NSTimer *)theTimer {
     if(self.delegate.idCentroDelVillaggio != 0 &&  [self isCentroDelVillaggioCostruito]) {
         NSLog(@"Ho terminato di costruire il Centro del Villaggio.");
+        [self.delegate setEdificioInCostruzione:NO];
+        [self.delegate setIdEdificioCorrente:self.delegate.idCentroDelVillaggio];
         [theTimer invalidate];
         theTimer = nil;
     } else {
+        [self.delegate setEdificioInCostruzione:YES];
         NSLog(@"Centro del villaggio costruito in %d.", (int)self.delegate.timeLeftToBuildCentroDelVillaggio);
         UILabel * label = (UILabel *)[self.view viewWithTag:101];
         [label setText:[NSString stringWithFormat:@"Tempo residuo %d", (int)self.delegate.timeLeftToBuildCentroDelVillaggio]];
