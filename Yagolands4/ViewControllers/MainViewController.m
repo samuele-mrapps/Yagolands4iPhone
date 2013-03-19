@@ -1,3 +1,8 @@
+/**
+ * Questa è la mappa di gioco. Qui è possibile vedere tutte le celle libere
+ * e selezionarne una per costruirci sopra un edificio.
+ */
+
 #import "MainViewController.h"
 #import "CellViewController.h"
 #import "Y4ImageView.h"
@@ -15,16 +20,19 @@
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
+    
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         [self setTitle:@"Yagolands"];
         [self setDelegate:(Y4AppDelegate *)[[UIApplication sharedApplication] delegate]];
     }
     return self;
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    
     if(self.delegate.idCentroDelVillaggio > 0) {
         NSInteger tag = self.delegate.idCentroDelVillaggio;
         [(Y4ImageView *)[self.view viewWithTag:tag] setImageOfCentroDelVillaggio];
@@ -34,10 +42,12 @@
         NSInteger tag = self.delegate.idCaserma;
         [(Y4ImageView *)[self.view viewWithTag:tag] setImageOfCaserma];
     }
+    
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    
     if(self.delegate.edificioInCostruzione == YES) {
         UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"MAPPA NON VISIBILE"
                                                          message:@"Non puoi vedere la mappa mentre viene costruito un edificio."
@@ -51,10 +61,12 @@
         [self.navigationController pushViewController:cell animated:TRUE];
         
     }
+    
 }
 
 - (void)viewDidLoad
 {
+    
     [super viewDidLoad];
     
     UILabel * label = [[UILabel alloc] initWithFrame:CGRectMake(20, 20, 280, 40)];
@@ -71,20 +83,25 @@
 
 - (void)disegnaLeMieTerreCon: (Y4Coordinata *)centro
 {
+    
     [self setPosizioneX:40];
     [self setPosizioneY:140];
     [self disegnaTerreniCon:centro];
+    
 }
 
 - (void)disegnaLeTerreNemicheCon: (Y4Coordinata *)centro
 {
+    
     [self setPosizioneX:200];
     [self setPosizioneY:300];
     [self disegnaTerreniCon:centro];
+    
 }
 
 - (void)disegnaTerreniCon: (Y4Coordinata *)centro
 {
+    
     [centro moveCenter];
     [self aggiungiCellaIn:centro];
     [centro moveRight];
@@ -99,10 +116,12 @@
     [self aggiungiCellaIn:centro];
     [centro moveRight];
     [self aggiungiCellaIn:centro];
+    
 }
 
 - (void)aggiungiCellaIn: (Y4Coordinata *)coordinata
 {
+    
     /* Dimenzioni della cella. */
     int larghezzaCella = 40;
     int altezzaCella = larghezzaCella * 3 / 4;
@@ -123,6 +142,7 @@
     [imageView setUserInteractionEnabled:TRUE];
     [imageView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleImage:)]];
     [self.view addSubview:imageView];
+    
 }
 
 - (void)toggleImage: (id)sender
@@ -131,27 +151,42 @@
     /* Recupero la view da caricare */
     Y4ImageView * view = (Y4ImageView *)((UITapGestureRecognizer *)sender).view;
     
-    if(view.tag != self.delegate.idCentroDelVillaggio &&
-       view.tag != self.delegate.idCaserma) {
-        [view toggleImage];
-        /* Carico il ViewController della cella. */
-        CellViewController * cell = nil;
-        cell = [[CellViewController alloc] init];
-        [cell setIdCell:view.tag];
-        [self.navigationController pushViewController:cell animated:TRUE];
+    if(view.tag > 7) {
+        
+        [[[UIAlertView alloc] initWithTitle:@"IMPOSSIBILE COSTRUIRE"
+                                    message:@"Tu puoi costruire solo nelle celle di sopra."
+                                   delegate:self
+                          cancelButtonTitle:@"Cancel"
+                          otherButtonTitles:@"OK", nil] show];
+        
     } else {
-        UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"ATTENZIONE!!"
-                                                         message:@"Cella già occupata"
-                                                        delegate:self
-                                               cancelButtonTitle:@"Cancel"
-                                               otherButtonTitles:@"OK", nil];
-        [alert show];
+        
+        if(view.tag != self.delegate.idCentroDelVillaggio &&
+           view.tag != self.delegate.idCaserma) {
+            [view toggleImage];
+            /* Carico il ViewController della cella. */
+            CellViewController * cell = nil;
+            cell = [[CellViewController alloc] init];
+            [cell setIdCell:view.tag];
+            [self.navigationController pushViewController:cell animated:TRUE];
+        } else {
+            UIAlertView * alert = [[UIAlertView alloc] initWithTitle:@"ATTENZIONE!!"
+                                                             message:@"Cella già occupata"
+                                                            delegate:self
+                                                   cancelButtonTitle:@"Cancel"
+                                                   otherButtonTitles:@"OK", nil];
+            [alert show];
+        }
+        
     }
+    
 }
 
 - (void)didReceiveMemoryWarning
 {
+    
     [super didReceiveMemoryWarning];
+    
 }
 
 @end
